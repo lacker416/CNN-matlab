@@ -1,18 +1,24 @@
 function net = skynet_fp(net, x)
     n = numel(net.layers);
     for l = 1 : n   %  for each layer
-        if strcmp(net.layers{l}.type,'d')  
-             net.layers{1}.a{1} = x;
+        if strcmp(net.layers{l}.type,'d')
+            if net.layers{l}.channel == 3
+                 net.layers{1}.a{1} = squeeze(x(:,:,1,:));
+                 net.layers{1}.a{2} = squeeze(x(:,:,2,:));
+                 net.layers{1}.a{3} = squeeze(x(:,:,3,:));
+            else
+                 net.layers{1}.a{1} = x;
+            end
         end
         if strcmp(net.layers{l}.type, 'c')
             for j = 1 : net.layers{l}.outputmaps   %  for each output map
                 %  create temp output map
-                z = zeros([net.layers{l}.mapsize size(x,3)]);
+                z = zeros([net.layers{l}.mapsize size(net.layers{1}.a{1},3)]);
                 for i = 1 : net.layers{l - 1}.outputmaps   %  for each input map
                     if (net.layers{l}.pad == 0) 
                             z = z + convn(net.layers{l - 1}.a{i}, net.layers{l}.k{i}{j}, 'valid');
                     else
-                       tt = zeros([net.layers{l}.mapsize + net.layers{l}.pad size(x,3)]);           
+                       tt = zeros([net.layers{l}.mapsize + net.layers{l}.pad size(net.layers{1}.a{1},3)]);           
                        tt(1:net.layers{l}.mapsize(1),1:net.layers{l}.mapsize(2),:) = net.layers{l - 1}.a{i};                      
                        z = z + convn(tt, net.layers{l}.k{i}{j}, 'valid');
                     end

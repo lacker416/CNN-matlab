@@ -2,8 +2,13 @@ function net = skynet_setup(net, x, y)
     n = numel(net.layers);
     for l = 1 : n   %  layer
         if strcmp(net.layers{l}.type, 'd')
-            net.layers{l}.mapsize = size(squeeze(x(:, :, 1)));
-            net.layers{l}.outputmaps = 1;            
+            if net.layers{l}.channel == 1
+                net.layers{l}.mapsize = size(squeeze(x(:, :, 1)));
+                net.layers{l}.outputmaps = 1;
+            elseif net.layers{l}.channel == 3
+                net.layers{l}.mapsize = size(squeeze(x(:,:,1,1)));
+                net.layers{l}.outputmaps = 3;                              
+            end
         end        
         if strcmp(net.layers{l}.type, 's')
             net.layers{l}.mapsize = net.layers{l-1}.mapsize / net.layers{l}.scale;
